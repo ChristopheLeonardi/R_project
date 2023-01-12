@@ -1,0 +1,161 @@
+---
+title: "Traitement - ACP"
+output: html_document
+author: "Alex Keita N'diaye"
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+# Partie I - Chargement des données de test
+```{r}
+# install.packages(c("dplyr", "tidyr", "ggplot2"))
+library(stats)
+library(readxl)
+library(dplyr)
+library(missMDA)
+library(pracma)
+library(corrplot)
+library(lubridate)
+library(missForest)
+library(FactoMineR)
+library(wakefield)
+library(ggpubr)
+library(factoextra)
+library(cluster)
+```
+
+### Test 1
+```{r}
+# data <- read_excel("Data_kmeans.xlsx")
+# sample_size = 100
+# set.seed(1)
+# idxs = sample(1:nrow(data),sample_size,replace=F)
+# subsample = data[idxs,]
+# sapply(data,class)
+```
+
+### Test 2
+```{r}
+# data <- read.csv("Data_kmeans3.csv", sep = ",")
+# sapply(data,class)
+```
+### Test 4
+```{r}
+# data("USArrests")
+# data <- data.frame(USArrests)
+# data2 <- data
+# data$xclass <- row.names(data)
+# sapply(data,class)
+```
+
+### Test 3
+```{r}
+set.seed(123)
+data <- data.frame(
+  x1 = rnorm(100),
+  x2 = rnorm(100),
+  x3 = rnorm(100),
+  x4 = r_sample_logical(100),
+  x5 = seq(as.Date("1999/01/01"), by = "day", length.out = 100),
+  x6 = seq(as.Date("2012/01/01"), by = "day", length.out = 100),
+  x7 = string(100),
+  xclass = sample(c("Banane","Mangue","Melon","Kiwi"), 100, replace = TRUE)
+)
+### Génération de 10% de données manquantes
+### data <- prodNA(data, noNA = 0.1)
+sapply(data,class)
+```
+
+
+```{r}
+#Répartir les données du dataset en quatre types
+data <- na.omit(data)
+data_acp_char <- data[sapply(data, is.character)]
+data_acp_num <- data[sapply(data, is.numeric)]
+data_acp_date <- data[sapply(data, is.Date)]
+data_acp_bool <- data[sapply(data, is.logical)]
+```
+
+```{r}
+
+```
+
+
+# Partie II - Analyse K-means
+```{r}
+##La variable à expliquer doit être nommée xclass
+
+data_acp_num <- scale(data_acp_num)
+#data_acp <- c(,data_acp_char,data_acp_bool)
+
+# Imputation des donnees
+data_imputed_acp <- missForest(data_acp_num)
+
+# ACP des donnees imputees et ajustees
+data_fitted <- data_imputed_acp$ximp
+```
+
+```{r}
+#Nombre optimal de clusters
+#fviz_nbclust(data_fitted, kmeans, method = "wss")
+
+# #Calcul du gap statistic basé sur le nombre de clusters
+# gap_stat <- clusGap(data_fitted,
+#                     FUN = kmeans,
+#                     nstart = 25,
+#                     K.max = 25,
+#                     B = 50)
+# 
+# #Nombre de clusters vs. gap statistic
+# fviz_gap_stat(gap_stat)
+```
+
+```{r}
+# Calculer k-means avec k = 3
+set.seed(123)
+data_kmeans <- kmeans(data_fitted, 
+                          centers = 5, 
+                          iter.max = 6,
+                          nstart = 25)
+
+# Clustering K-means montrant le groupe de chaque individu
+data_kmeans$cluster
+
+# Calcul de la matrice de covariance
+###Utiliser cor ou cov?
+corrplot(cor(data_fitted))
+
+# Application de l'ACP
+res.pca <- PCA(data_fitted)
+
+# Coordonnées des individus
+ind.coord <- as.data.frame(get_pca_ind(res.pca)$coord)
+
+# Ajouter les clusters obtenus à l'aide de l'algorithme k-means
+ind.coord$cluster <- factor(data_kmeans$cluster)
+
+# Ajouter les groupes d'espèces issues du jeu de données initial
+ind.coord$xclass <- data$xclass
+
+# Inspection des données
+head(ind.coord)
+
+# Pourcentage de la variance expliquée par les dimensions
+eigenvalue <- data.frame(round(get_eigenvalue(res.pca), 1))
+variance.percent <- eigenvalue$variance.percent
+
+
+# Visualiser les clusters k-means
+###ici faire un traitement pour déterminer les axes ayant les valeurs propres les plus significatives
+###ces valeurs seront utilisées pour Dim 1/2
+ggscatter(
+  ind.coord, x = "Dim.1", y = "Dim.2", 
+  color = "cluster", palette = "npg", ellipse = TRUE, ellipse.type = "convex",
+  shape = "xclass", size = 1.5,  legend = "right", ggtheme = theme_bw(),
+  xlab = paste0("Dim 1 (", variance.percent[1], "% )" ),
+  ylab = paste0("Dim 2 (", variance.percent[2], "% )" )) +
+  stat_mean(aes(color = cluster), size = 4)
+
+
+```

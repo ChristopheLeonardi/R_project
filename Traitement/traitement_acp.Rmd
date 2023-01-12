@@ -32,6 +32,7 @@ library(wakefield)
 # data <- read.csv("Data_acp2.csv", sep = ";")
 # sapply(data,class)
 ```
+
 ### Test 3
 ```{r}
 set.seed(123)
@@ -54,7 +55,7 @@ sapply(data,class)
 
 
 ```{r}
-#Répartir les données du dataset en deux types
+#Répartir les données du dataset en quatre types
 data_acp_char <- data[sapply(data, is.character)]
 data_acp_num <- data[sapply(data, is.numeric)]
 data_acp_date <- data[sapply(data, is.Date)]
