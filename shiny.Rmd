@@ -7,15 +7,54 @@ output: html_notebook
 library(shiny)
 library(DT)
 ui <- fluidPage(
-  titlePanel("Séléctionner un fichier CSV"),
+  titlePanel("Projet Room 2"),
   sidebarLayout(
     sidebarPanel(
-      fileInput("file", "Choose a CSV file",
-                accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
-      radioButtons('sep', 'Separator', c(Comma=',', Semicolon=';', Tab='\t'), ';'),
-      checkboxGroupInput("columns", "Select columns to keep:",
-                         choices = colnames(data())) 
-                         
+      # Load File
+      wellPanel(
+        titlePanel("Chargement du jeu de données"),
+        fileInput("file", "Choisissez un fichier csv",
+                  accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
+        radioButtons('sep', 'Separator', c(Comma=',', Semicolon=';'), ';'),
+      ),
+      
+      # ACP
+      wellPanel(
+        titlePanel("ACP"),
+        checkboxGroupInput("columns", "Sélectionnez les colonnes à conserver",
+                           choices = colnames(data())), 
+        actionButton("acp", "Calculer l'ACP"),
+      ),
+      
+      # Regression Linéare
+      wellPanel(
+        titlePanel("Régression Linéaire"),
+        selectInput("var_inco_lin", "Variable à expliquer :", choices = c(colnames(data()))),
+  
+        checkboxGroupInput("var_exp_lin", "Variable(s) explicatives",
+                           choices = colnames(data())), 
+        actionButton("reg_lin", "Voir la régression linéaire multiple"),
+      ),
+            
+      # Regression logistique
+      wellPanel(
+        titlePanel("Régression Logistique"),
+        selectInput("var_inco_log", "Variable à expliquer :", choices = c(colnames(data()))),
+  
+        checkboxGroupInput("var_exp_lon", "Variable(s) explicative(s)",
+                           choices = colnames(data())), 
+        actionButton("reg_lon", "Voir la régression logistique"),
+      ),
+            
+      # K-means
+      wellPanel(
+        titlePanel("K-means"),
+  
+        checkboxGroupInput("var_quant", "Variable(s) quantitative(s) : ",
+                           choices = colnames(data())), 
+        actionButton("reg_lon", "Voir le K-means"),
+      ),
+      
     ),
     mainPanel(
       tableOutput("data")
@@ -27,7 +66,34 @@ server <- function(input, output,session) {
   data <- reactive({
     req(input$file)
     df <- read.csv(input$file$datapath, header = TRUE, sep = input$sep)
-    updateCheckboxGroupInput(session, "columns", "Select columns to keep:", 
+    
+    # ACP
+    updateCheckboxGroupInput(session, "columns", "Sélectionnez les colonnes à conserver", 
+                             choices = colnames(df),
+                             selected = colnames(df)
+                             )
+    # Régression Linéaire
+    updateSelectInput(session, "var_inco_lin", "Variable à expliqué :", 
+                             choices = colnames(df)
+                             )
+    
+    updateCheckboxGroupInput(session, "var_exp_lin", "Variable(s) explicative(s)", 
+                             choices = colnames(df),
+                             selected = colnames(df)
+                             )
+    
+    # Régression Logistique
+    updateSelectInput(session, "var_inco_log", "Variable à expliquer :", 
+                             choices = colnames(df)
+                             )
+    
+    updateCheckboxGroupInput(session, "var_exp_lon", "Variable(s) explicative(s)", 
+                             choices = colnames(df),
+                             selected = colnames(df)
+                             )
+    
+    # K-means
+    updateCheckboxGroupInput(session, "var_quant", "Variable(s) quantitative(s) : ", 
                              choices = colnames(df),
                              selected = colnames(df)
                              )
