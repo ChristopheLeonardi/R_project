@@ -4,8 +4,13 @@ output: html_notebook
 ---
 
 ```{r}
+install.packages("shinyalert")
+```
+
+```{r}
 library(shiny)
 library(DT)
+
 ui <- fluidPage(
   titlePanel("Projet Room 2"),
   sidebarLayout(
@@ -57,11 +62,18 @@ ui <- fluidPage(
       
     ),
     mainPanel(
-      tableOutput("data")
+      tableOutput("data"),
+      textOutput("selected_var")
+      #conditionalPanel('input.pType=="Default"',tableOutput("data")),
+      #conditionalPanel('input.pType=="ACP"', )
+      
     )
   )
 )
 
+```
+
+```{r}
 server <- function(input, output,session) {
   data <- reactive({
     req(input$file)
@@ -70,39 +82,45 @@ server <- function(input, output,session) {
     # ACP
     updateCheckboxGroupInput(session, "columns", "Sélectionnez les colonnes à conserver", 
                              choices = colnames(df),
-                             selected = colnames(df)
-                             )
+                             selected = colnames(df))
+
     # Régression Linéaire
     updateSelectInput(session, "var_inco_lin", "Variable à expliqué :", 
-                             choices = colnames(df)
-                             )
+                             choices = colnames(df))
     
     updateCheckboxGroupInput(session, "var_exp_lin", "Variable(s) explicative(s)", 
                              choices = colnames(df),
-                             selected = colnames(df)
-                             )
+                             selected = colnames(df))
     
     # Régression Logistique
     updateSelectInput(session, "var_inco_log", "Variable à expliquer :", 
-                             choices = colnames(df)
-                             )
+                             choices = colnames(df))
     
     updateCheckboxGroupInput(session, "var_exp_lon", "Variable(s) explicative(s)", 
                              choices = colnames(df),
-                             selected = colnames(df)
-                             )
+                             selected = colnames(df))
     
     # K-means
     updateCheckboxGroupInput(session, "var_quant", "Variable(s) quantitative(s) : ", 
                              choices = colnames(df),
-                             selected = colnames(df)
-                             )
+                             selected = colnames(df))
     df
+  })
+  
+  observeEvent(input$acp, {
+    output$selected_var <- renderText({ 
+      "You have selected this"
+    })
   })
   
   output$data <- renderTable({
     data()[, input$columns]
   }, server = TRUE)
 }
+
+
+```
+
+```{r}
 shinyApp(ui = ui, server = server)
 ```
