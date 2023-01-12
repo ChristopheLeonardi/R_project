@@ -6,50 +6,63 @@ output: html_notebook
 ```{r}
 #install.packages("shiny")
 library(shiny)
+library(DT)
 ```
 
 ```{r}
-ui <- fluidPage(
-  titlePanel("Séléctionner un fichier CSV"),
-  sidebarLayout(
-    sidebarPanel(
-      fileInput("file", "Choose a CSV file",
-                accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
-      checkboxGroupInput("columns", "Select columns to keep:", 
-                         choices = colnames(data()))
-      
-        checkboxGroupInput("icons", "Choose icons:",
-    choiceNames =
-      list(icon("calendar"), icon("bed"),
-           icon("cog"), icon("bug")),
-    choiceValues =
-      list("calendar", "bed", "cog", "bug")
-  ),
-  textOutput("txt")
-      
-    ),
-    mainPanel(
-      tableOutput("data")
-    )
-  )
-)
+ui <- fluidPage( 
+   fileInput('file1', 'Choose file to upload', 
+              accept = c( 
+                'text/csv', 
+                'text/comma-separated-values', 
+                'text/tab-separated-values', 
+                'text/plain', 
+                '.csv', 
+                '.tsv' 
+              ) 
+      ), 
+   tags$hr(), 
+  checkboxInput('header', 'Header', TRUE), 
+  radioButtons('sep', 'Separator', 
+               c(Comma=',', 
+                 Semicolon=';', 
+                 Tab='\t'), 
+               ','), 
+  radioButtons('quote', 'Quote', 
+               c(None='', 
+                 'Double Quote'='"', 
+                 'Single Quote'="'"), 
+               '"'), 
+  tags$hr(), 
+  p('If you want a sample .csv or .tsv file to upload,', 
+    'you can first download the sample', 
+    a(href = 'mtcars.csv', 'mtcars.csv'), 'or', 
+    a(href = 'pressure.tsv', 'pressure.tsv'), 
+    'files, and then try uploading them.' 
+  ), 
+  DT::dataTableOutput('contents') 
+) 
 
 ```
 
 ```{r}
-
-server <- function(input, output,session) {
-  data <- reactive({
-    req(input$file)
-    df <- read.csv(input$file$datapath, header = TRUE)
-    updateCheckboxGroupInput(session, "columns", "Select columns to keep:", choices = colnames(df))
-    df
-  })
-  
-  output$data <- renderTable({
-    data()[, input$columns]
-  }, server = TRUE)
-}
+ 
+server <- function(input, output,session) { 
+ 
+    
+  output$contents <- DT::renderDataTable({ 
+ 
+     
+    inFile <- input$file1 
+     
+    if (is.null(inFile)) 
+      return(NULL) 
+     
+    k<-read.csv(inFile$datapath, header = input$header, 
+             sep = input$sep, quote = input$quote) 
+     }) 
+ 
+} 
 ```
 
 ```{r}

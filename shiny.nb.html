@@ -1758,45 +1758,88 @@ display: none;
 <pre class="r"><code>#install.packages(&quot;shiny&quot;)
 library(shiny)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUmVnaXN0ZXJlZCBTMyBtZXRob2RzIG92ZXJ3cml0dGVuIGJ5ICdodG1sdG9vbHMnOlxuICBtZXRob2QgICAgICAgICAgICAgICBmcm9tICAgICAgICAgXG4gIHByaW50Lmh0bWwgICAgICAgICAgIHRvb2xzOnJzdHVkaW9cbiAgcHJpbnQuc2hpbnkudGFnICAgICAgdG9vbHM6cnN0dWRpb1xuICBwcmludC5zaGlueS50YWcubGlzdCB0b29sczpyc3R1ZGlvXG4ifQ== -->
+<pre><code>Registered S3 methods overwritten by &#39;htmltools&#39;:
+  method               from         
+  print.html           tools:rstudio
+  print.shiny.tag      tools:rstudio
+  print.shiny.tag.list tools:rstudio</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShEVClcbmBgYCJ9 -->
+<pre class="r"><code>library(DT)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUmVnaXN0ZXJlZCBTMyBtZXRob2Qgb3ZlcndyaXR0ZW4gYnkgJ2h0bWx3aWRnZXRzJzpcbiAgbWV0aG9kICAgICAgICAgICBmcm9tICAgICAgICAgXG4gIHByaW50Lmh0bWx3aWRnZXQgdG9vbHM6cnN0dWRpb1xuXG5BdHRhY2hlbWVudCBkdSBwYWNrYWdlIDog4oCYRFTigJlcblxuTGVzIG9iamV0cyBzdWl2YW50cyBzb250IG1hc3F1w6lzIGRlcHVpcyDigJhwYWNrYWdlOnNoaW554oCZOlxuXG4gICAgZGF0YVRhYmxlT3V0cHV0LCByZW5kZXJEYXRhVGFibGVcbiJ9 -->
+<pre><code>Registered S3 method overwritten by &#39;htmlwidgets&#39;:
+  method           from         
+  print.htmlwidget tools:rstudio
+
+Attachement du package : ‘DT’
+
+Les objets suivants sont masqués depuis ‘package:shiny’:
+
+    dataTableOutput, renderDataTable</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudWkgPC0gZmx1aWRQYWdlKFxuICB0aXRsZVBhbmVsKFwiU8OpbMOpY3Rpb25uZXIgdW4gZmljaGllciBDU1ZcIiksXG4gIHNpZGViYXJMYXlvdXQoXG4gICAgc2lkZWJhclBhbmVsKFxuICAgICAgZmlsZUlucHV0KFwiZmlsZVwiLCBcIkNob29zZSBhIENTViBmaWxlXCIsXG4gICAgICAgICAgICAgICAgYWNjZXB0ID0gYyhcInRleHQvY3N2XCIsIFwidGV4dC9jb21tYS1zZXBhcmF0ZWQtdmFsdWVzLHRleHQvcGxhaW5cIiwgXCIuY3N2XCIpKSxcbiAgICAgIGNoZWNrYm94R3JvdXBJbnB1dChcImNvbHVtbnNcIiwgXCJTZWxlY3QgY29sdW1ucyB0byBrZWVwOlwiLCBcbiAgICAgICAgICAgICAgICAgICAgICAgICBjaG9pY2VzID0gY29sbmFtZXMoZGF0YSgpKSlcbiAgICApLFxuICAgIG1haW5QYW5lbChcbiAgICAgIHRhYmxlT3V0cHV0KFwiZGF0YVwiKVxuICAgIClcbiAgKVxuKVxuXG5gYGAifQ== -->
-<pre class="r"><code>ui &lt;- fluidPage(
-  titlePanel(&quot;Séléctionner un fichier CSV&quot;),
-  sidebarLayout(
-    sidebarPanel(
-      fileInput(&quot;file&quot;, &quot;Choose a CSV file&quot;,
-                accept = c(&quot;text/csv&quot;, &quot;text/comma-separated-values,text/plain&quot;, &quot;.csv&quot;)),
-      checkboxGroupInput(&quot;columns&quot;, &quot;Select columns to keep:&quot;, 
-                         choices = colnames(data()))
-    ),
-    mainPanel(
-      tableOutput(&quot;data&quot;)
-    )
-  )
-)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudWkgPC0gZmx1aWRQYWdlKCBcbiAgIGZpbGVJbnB1dCgnZmlsZTEnLCAnQ2hvb3NlIGZpbGUgdG8gdXBsb2FkJywgXG4gICAgICAgICAgICAgIGFjY2VwdCA9IGMoIFxuICAgICAgICAgICAgICAgICd0ZXh0L2NzdicsIFxuICAgICAgICAgICAgICAgICd0ZXh0L2NvbW1hLXNlcGFyYXRlZC12YWx1ZXMnLCBcbiAgICAgICAgICAgICAgICAndGV4dC90YWItc2VwYXJhdGVkLXZhbHVlcycsIFxuICAgICAgICAgICAgICAgICd0ZXh0L3BsYWluJywgXG4gICAgICAgICAgICAgICAgJy5jc3YnLCBcbiAgICAgICAgICAgICAgICAnLnRzdicgXG4gICAgICAgICAgICAgICkgXG4gICAgICApLCBcbiAgIHRhZ3MkaHIoKSwgXG4gIGNoZWNrYm94SW5wdXQoJ2hlYWRlcicsICdIZWFkZXInLCBUUlVFKSwgXG4gIHJhZGlvQnV0dG9ucygnc2VwJywgJ1NlcGFyYXRvcicsIFxuICAgICAgICAgICAgICAgYyhDb21tYT0nLCcsIFxuICAgICAgICAgICAgICAgICBTZW1pY29sb249JzsnLCBcbiAgICAgICAgICAgICAgICAgVGFiPSdcXHQnKSwgXG4gICAgICAgICAgICAgICAnLCcpLCBcbiAgcmFkaW9CdXR0b25zKCdxdW90ZScsICdRdW90ZScsIFxuICAgICAgICAgICAgICAgYyhOb25lPScnLCBcbiAgICAgICAgICAgICAgICAgJ0RvdWJsZSBRdW90ZSc9J1wiJywgXG4gICAgICAgICAgICAgICAgICdTaW5nbGUgUXVvdGUnPVwiJ1wiKSwgXG4gICAgICAgICAgICAgICAnXCInKSwgXG4gIHRhZ3MkaHIoKSwgXG4gIHAoJ0lmIHlvdSB3YW50IGEgc2FtcGxlIC5jc3Ygb3IgLnRzdiBmaWxlIHRvIHVwbG9hZCwnLCBcbiAgICAneW91IGNhbiBmaXJzdCBkb3dubG9hZCB0aGUgc2FtcGxlJywgXG4gICAgYShocmVmID0gJ210Y2Fycy5jc3YnLCAnbXRjYXJzLmNzdicpLCAnb3InLCBcbiAgICBhKGhyZWYgPSAncHJlc3N1cmUudHN2JywgJ3ByZXNzdXJlLnRzdicpLCBcbiAgICAnZmlsZXMsIGFuZCB0aGVuIHRyeSB1cGxvYWRpbmcgdGhlbS4nIFxuICApLCBcbiAgRFQ6OmRhdGFUYWJsZU91dHB1dCgnY29udGVudHMnKSBcbikgXG5cbmBgYCJ9 -->
+<pre class="r"><code>ui &lt;- fluidPage( 
+   fileInput(&#39;file1&#39;, &#39;Choose file to upload&#39;, 
+              accept = c( 
+                &#39;text/csv&#39;, 
+                &#39;text/comma-separated-values&#39;, 
+                &#39;text/tab-separated-values&#39;, 
+                &#39;text/plain&#39;, 
+                &#39;.csv&#39;, 
+                &#39;.tsv&#39; 
+              ) 
+      ), 
+   tags$hr(), 
+  checkboxInput(&#39;header&#39;, &#39;Header&#39;, TRUE), 
+  radioButtons(&#39;sep&#39;, &#39;Separator&#39;, 
+               c(Comma=&#39;,&#39;, 
+                 Semicolon=&#39;;&#39;, 
+                 Tab=&#39;\t&#39;), 
+               &#39;,&#39;), 
+  radioButtons(&#39;quote&#39;, &#39;Quote&#39;, 
+               c(None=&#39;&#39;, 
+                 &#39;Double Quote&#39;=&#39;&quot;&#39;, 
+                 &#39;Single Quote&#39;=&quot;&#39;&quot;), 
+               &#39;&quot;&#39;), 
+  tags$hr(), 
+  p(&#39;If you want a sample .csv or .tsv file to upload,&#39;, 
+    &#39;you can first download the sample&#39;, 
+    a(href = &#39;mtcars.csv&#39;, &#39;mtcars.csv&#39;), &#39;or&#39;, 
+    a(href = &#39;pressure.tsv&#39;, &#39;pressure.tsv&#39;), 
+    &#39;files, and then try uploading them.&#39; 
+  ), 
+  DT::dataTableOutput(&#39;contents&#39;) 
+) 
 </code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5zZXJ2ZXIgPC0gZnVuY3Rpb24oaW5wdXQsIG91dHB1dCxzZXNzaW9uKSB7XG4gIGRhdGEgPC0gcmVhY3RpdmUoe1xuICAgIHJlcShpbnB1dCRmaWxlKVxuICAgIGRmIDwtIHJlYWQuY3N2KGlucHV0JGZpbGUkZGF0YXBhdGgsIGhlYWRlciA9IFRSVUUpXG4gICAgdXBkYXRlQ2hlY2tib3hHcm91cElucHV0KHNlc3Npb24sIFwiY29sdW1uc1wiLCBcIlNlbGVjdCBjb2x1bW5zIHRvIGtlZXA6XCIsIGNob2ljZXMgPSBjb2xuYW1lcyhkZikpXG4gICAgZGZcbiAgfSlcbiAgXG4gIG91dHB1dCRkYXRhIDwtIHJlbmRlclRhYmxlKHtcbiAgICBkYXRhKClbLCBpbnB1dCRjb2x1bW5zXVxuICB9LCBzZXJ2ZXIgPSBUUlVFKVxufVxuYGBgIn0= -->
-<pre class="r"><code>
-server &lt;- function(input, output,session) {
-  data &lt;- reactive({
-    req(input$file)
-    df &lt;- read.csv(input$file$datapath, header = TRUE)
-    updateCheckboxGroupInput(session, &quot;columns&quot;, &quot;Select columns to keep:&quot;, choices = colnames(df))
-    df
-  })
-  
-  output$data &lt;- renderTable({
-    data()[, input$columns]
-  }, server = TRUE)
-}</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIFxuc2VydmVyIDwtIGZ1bmN0aW9uKGlucHV0LCBvdXRwdXQsc2Vzc2lvbikgeyBcbiBcbiAgICBcbiAgb3V0cHV0JGNvbnRlbnRzIDwtIERUOjpyZW5kZXJEYXRhVGFibGUoeyBcbiBcbiAgICAgXG4gICAgaW5GaWxlIDwtIGlucHV0JGZpbGUxIFxuICAgICBcbiAgICBpZiAoaXMubnVsbChpbkZpbGUpKSBcbiAgICAgIHJldHVybihOVUxMKSBcbiAgICAgXG4gICAgazwtcmVhZC5jc3YoaW5GaWxlJGRhdGFwYXRoLCBoZWFkZXIgPSBpbnB1dCRoZWFkZXIsIFxuICAgICAgICAgICAgIHNlcCA9IGlucHV0JHNlcCwgcXVvdGUgPSBpbnB1dCRxdW90ZSkgXG4gICAgIH0pIFxuIFxufSBcbmBgYCJ9 -->
+<pre class="r"><code> 
+server &lt;- function(input, output,session) { 
+ 
+    
+  output$contents &lt;- DT::renderDataTable({ 
+ 
+     
+    inFile &lt;- input$file1 
+     
+    if (is.null(inFile)) 
+      return(NULL) 
+     
+    k&lt;-read.csv(inFile$datapath, header = input$header, 
+             sep = input$sep, quote = input$quote) 
+     }) 
+ 
+} </code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -1805,21 +1848,9 @@ server &lt;- function(input, output,session) {
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2hpbnlBcHAodWkgPSB1aSwgc2VydmVyID0gc2VydmVyKVxuYGBgIn0= -->
 <pre class="r"><code>shinyApp(ui = ui, server = server)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiXG5MaXN0ZW5pbmcgb24gaHR0cDovLzEyNy4wLjAuMTo1NTAzXG5BdmlzIDogRXJyb3IgaW4gPC06IGludmFsaWQgc3Vic2NyaXB0IHR5cGUgJ2xpc3QnICAxMDM6IHh0YWJsZS5kYXRhLmZyYW1lXG4gIDEwMDogdHJhbnNmb3JtXG4gICA5OTogZnVuY1xuICAgOTc6IGZcbiAgIDk2OiBSZWR1Y2VcbiAgIDg3OiBkb1xuICAgODY6IGh5YnJpZF9jaGFpblxuICAgODU6IHJlbmRlckZ1bmNcbiAgIDg0OiBvdXRwdXQkZGF0YVxuICAgIDM6IHJ1bkFwcFxuICAgIDI6IHByaW50LnNoaW55LmFwcG9ialxuICAgIDE6IDxBbm9ueW1vdXM+XG4ifQ== -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5MaXN0ZW5pbmcgb24gaHR0cDovLzEyNy4wLjAuMTo1NjU0XG4ifQ== -->
 <pre><code>
-Listening on http://127.0.0.1:5503
-Avis : Error in &lt;-: invalid subscript type &#39;list&#39;  103: xtable.data.frame
-  100: transform
-   99: func
-   97: f
-   96: Reduce
-   87: do
-   86: hybrid_chain
-   85: renderFunc
-   84: output$data
-    3: runApp
-    2: print.shiny.appobj
-    1: &lt;Anonymous&gt;</code></pre>
+Listening on http://127.0.0.1:5654</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiTkFcbiJ9 -->
 <pre><code>NA</code></pre>
@@ -1878,7 +1909,7 @@ Listening on http://127.0.0.1:5503</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpgYGB7cn0NCiNpbnN0YWxsLnBhY2thZ2VzKCJzaGlueSIpDQpsaWJyYXJ5KHNoaW55KQ0KYGBgDQoNCmBgYHtyfQ0KdWkgPC0gZmx1aWRQYWdlKA0KICB0aXRsZVBhbmVsKCJTw6lsw6ljdGlvbm5lciB1biBmaWNoaWVyIENTViIpLA0KICBzaWRlYmFyTGF5b3V0KA0KICAgIHNpZGViYXJQYW5lbCgNCiAgICAgIGZpbGVJbnB1dCgiZmlsZSIsICJDaG9vc2UgYSBDU1YgZmlsZSIsDQogICAgICAgICAgICAgICAgYWNjZXB0ID0gYygidGV4dC9jc3YiLCAidGV4dC9jb21tYS1zZXBhcmF0ZWQtdmFsdWVzLHRleHQvcGxhaW4iLCAiLmNzdiIpKSwNCiAgICAgIGNoZWNrYm94R3JvdXBJbnB1dCgiY29sdW1ucyIsICJTZWxlY3QgY29sdW1ucyB0byBrZWVwOiIsIA0KICAgICAgICAgICAgICAgICAgICAgICAgIGNob2ljZXMgPSBjb2xuYW1lcyhkYXRhKCkpKQ0KICAgICAgDQogICAgICAgIGNoZWNrYm94R3JvdXBJbnB1dCgiaWNvbnMiLCAiQ2hvb3NlIGljb25zOiIsDQogICAgY2hvaWNlTmFtZXMgPQ0KICAgICAgbGlzdChpY29uKCJjYWxlbmRhciIpLCBpY29uKCJiZWQiKSwNCiAgICAgICAgICAgaWNvbigiY29nIiksIGljb24oImJ1ZyIpKSwNCiAgICBjaG9pY2VWYWx1ZXMgPQ0KICAgICAgbGlzdCgiY2FsZW5kYXIiLCAiYmVkIiwgImNvZyIsICJidWciKQ0KICApLA0KICB0ZXh0T3V0cHV0KCJ0eHQiKQ0KICAgICAgDQogICAgKSwNCiAgICBtYWluUGFuZWwoDQogICAgICB0YWJsZU91dHB1dCgiZGF0YSIpDQogICAgKQ0KICApDQopDQoNCmBgYA0KDQpgYGB7cn0NCg0Kc2VydmVyIDwtIGZ1bmN0aW9uKGlucHV0LCBvdXRwdXQsc2Vzc2lvbikgew0KICBkYXRhIDwtIHJlYWN0aXZlKHsNCiAgICByZXEoaW5wdXQkZmlsZSkNCiAgICBkZiA8LSByZWFkLmNzdihpbnB1dCRmaWxlJGRhdGFwYXRoLCBoZWFkZXIgPSBUUlVFKQ0KICAgIHVwZGF0ZUNoZWNrYm94R3JvdXBJbnB1dChzZXNzaW9uLCAiY29sdW1ucyIsICJTZWxlY3QgY29sdW1ucyB0byBrZWVwOiIsIGNob2ljZXMgPSBjb2xuYW1lcyhkZikpDQogICAgZGYNCiAgfSkNCiAgDQogIG91dHB1dCRkYXRhIDwtIHJlbmRlclRhYmxlKHsNCiAgICBkYXRhKClbLCBpbnB1dCRjb2x1bW5zXQ0KICB9LCBzZXJ2ZXIgPSBUUlVFKQ0KfQ0KYGBgDQoNCmBgYHtyfQ0Kc2hpbnlBcHAodWkgPSB1aSwgc2VydmVyID0gc2VydmVyKQ0KYGBgDQoNCmBgYHtyfQ0KIyMgT25seSBydW4gZXhhbXBsZXMgaW4gaW50ZXJhY3RpdmUgUiBzZXNzaW9ucw0KaWYgKGludGVyYWN0aXZlKCkpIHsNCg0KdWkgPC0gZmx1aWRQYWdlKA0KICBjaGVja2JveEdyb3VwSW5wdXQoInZhcmlhYmxlIiwgIlZhcmlhYmxlcyB0byBzaG93OiIsDQogICAgICAgICAgICAgICAgICAgICBjKCJDeWxpbmRlcnMiID0gImN5bCIsDQogICAgICAgICAgICAgICAgICAgICAgICJUcmFuc21pc3Npb24iID0gImFtIiwNCiAgICAgICAgICAgICAgICAgICAgICAgIkdlYXJzIiA9ICJnZWFyIikpLA0KICB0YWJsZU91dHB1dCgiZGF0YSIpDQopDQoNCnNlcnZlciA8LSBmdW5jdGlvbihpbnB1dCwgb3V0cHV0LCBzZXNzaW9uKSB7DQogIG91dHB1dCRkYXRhIDwtIHJlbmRlclRhYmxlKHsNCiAgICBtdGNhcnNbLCBjKCJtcGciLCBpbnB1dCR2YXJpYWJsZSksIGRyb3AgPSBGQUxTRV0NCiAgfSwgcm93bmFtZXMgPSBUUlVFKQ0KfQ0KDQpzaGlueUFwcCh1aSwgc2VydmVyKQ0KDQp1aSA8LSBmbHVpZFBhZ2UoDQogIGNoZWNrYm94R3JvdXBJbnB1dCgiaWNvbnMiLCAiQ2hvb3NlIGljb25zOiIsDQogICAgY2hvaWNlTmFtZXMgPQ0KICAgICAgbGlzdChpY29uKCJjYWxlbmRhciIpLCBpY29uKCJiZWQiKSwNCiAgICAgICAgICAgaWNvbigiY29nIiksIGljb24oImJ1ZyIpKSwNCiAgICBjaG9pY2VWYWx1ZXMgPQ0KICAgICAgbGlzdCgiY2FsZW5kYXIiLCAiYmVkIiwgImNvZyIsICJidWciKQ0KICApLA0KICB0ZXh0T3V0cHV0KCJ0eHQiKQ0KKQ0KDQpzZXJ2ZXIgPC0gZnVuY3Rpb24oaW5wdXQsIG91dHB1dCwgc2Vzc2lvbikgew0KICBvdXRwdXQkdHh0IDwtIHJlbmRlclRleHQoew0KICAgIGljb25zIDwtIHBhc3RlKGlucHV0JGljb25zLCBjb2xsYXBzZSA9ICIsICIpDQogICAgcGFzdGUoIllvdSBjaG9zZSIsIGljb25zKQ0KICB9KQ0KfQ0KDQpzaGlueUFwcCh1aSwgc2VydmVyKQ0KfQ0KYGBgDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpgYGB7cn0NCiNpbnN0YWxsLnBhY2thZ2VzKCJzaGlueSIpDQpsaWJyYXJ5KHNoaW55KQ0KbGlicmFyeShEVCkNCmBgYA0KDQpgYGB7cn0NCnVpIDwtIGZsdWlkUGFnZSggDQogICBmaWxlSW5wdXQoJ2ZpbGUxJywgJ0Nob29zZSBmaWxlIHRvIHVwbG9hZCcsIA0KICAgICAgICAgICAgICBhY2NlcHQgPSBjKCANCiAgICAgICAgICAgICAgICAndGV4dC9jc3YnLCANCiAgICAgICAgICAgICAgICAndGV4dC9jb21tYS1zZXBhcmF0ZWQtdmFsdWVzJywgDQogICAgICAgICAgICAgICAgJ3RleHQvdGFiLXNlcGFyYXRlZC12YWx1ZXMnLCANCiAgICAgICAgICAgICAgICAndGV4dC9wbGFpbicsIA0KICAgICAgICAgICAgICAgICcuY3N2JywgDQogICAgICAgICAgICAgICAgJy50c3YnIA0KICAgICAgICAgICAgICApIA0KICAgICAgKSwgDQogICB0YWdzJGhyKCksIA0KICBjaGVja2JveElucHV0KCdoZWFkZXInLCAnSGVhZGVyJywgVFJVRSksIA0KICByYWRpb0J1dHRvbnMoJ3NlcCcsICdTZXBhcmF0b3InLCANCiAgICAgICAgICAgICAgIGMoQ29tbWE9JywnLCANCiAgICAgICAgICAgICAgICAgU2VtaWNvbG9uPSc7JywgDQogICAgICAgICAgICAgICAgIFRhYj0nXHQnKSwgDQogICAgICAgICAgICAgICAnLCcpLCANCiAgcmFkaW9CdXR0b25zKCdxdW90ZScsICdRdW90ZScsIA0KICAgICAgICAgICAgICAgYyhOb25lPScnLCANCiAgICAgICAgICAgICAgICAgJ0RvdWJsZSBRdW90ZSc9JyInLCANCiAgICAgICAgICAgICAgICAgJ1NpbmdsZSBRdW90ZSc9IiciKSwgDQogICAgICAgICAgICAgICAnIicpLCANCiAgdGFncyRocigpLCANCiAgcCgnSWYgeW91IHdhbnQgYSBzYW1wbGUgLmNzdiBvciAudHN2IGZpbGUgdG8gdXBsb2FkLCcsIA0KICAgICd5b3UgY2FuIGZpcnN0IGRvd25sb2FkIHRoZSBzYW1wbGUnLCANCiAgICBhKGhyZWYgPSAnbXRjYXJzLmNzdicsICdtdGNhcnMuY3N2JyksICdvcicsIA0KICAgIGEoaHJlZiA9ICdwcmVzc3VyZS50c3YnLCAncHJlc3N1cmUudHN2JyksIA0KICAgICdmaWxlcywgYW5kIHRoZW4gdHJ5IHVwbG9hZGluZyB0aGVtLicgDQogICksIA0KICBEVDo6ZGF0YVRhYmxlT3V0cHV0KCdjb250ZW50cycpIA0KKSANCg0KYGBgDQoNCmBgYHtyfQ0KIA0Kc2VydmVyIDwtIGZ1bmN0aW9uKGlucHV0LCBvdXRwdXQsc2Vzc2lvbikgeyANCiANCiAgICANCiAgb3V0cHV0JGNvbnRlbnRzIDwtIERUOjpyZW5kZXJEYXRhVGFibGUoeyANCiANCiAgICAgDQogICAgaW5GaWxlIDwtIGlucHV0JGZpbGUxIA0KICAgICANCiAgICBpZiAoaXMubnVsbChpbkZpbGUpKSANCiAgICAgIHJldHVybihOVUxMKSANCiAgICAgDQogICAgazwtcmVhZC5jc3YoaW5GaWxlJGRhdGFwYXRoLCBoZWFkZXIgPSBpbnB1dCRoZWFkZXIsIA0KICAgICAgICAgICAgIHNlcCA9IGlucHV0JHNlcCwgcXVvdGUgPSBpbnB1dCRxdW90ZSkgDQogICAgIH0pIA0KIA0KfSANCmBgYA0KDQpgYGB7cn0NCnNoaW55QXBwKHVpID0gdWksIHNlcnZlciA9IHNlcnZlcikNCmBgYA0KDQpgYGB7cn0NCiMjIE9ubHkgcnVuIGV4YW1wbGVzIGluIGludGVyYWN0aXZlIFIgc2Vzc2lvbnMNCmlmIChpbnRlcmFjdGl2ZSgpKSB7DQoNCnVpIDwtIGZsdWlkUGFnZSgNCiAgY2hlY2tib3hHcm91cElucHV0KCJ2YXJpYWJsZSIsICJWYXJpYWJsZXMgdG8gc2hvdzoiLA0KICAgICAgICAgICAgICAgICAgICAgYygiQ3lsaW5kZXJzIiA9ICJjeWwiLA0KICAgICAgICAgICAgICAgICAgICAgICAiVHJhbnNtaXNzaW9uIiA9ICJhbSIsDQogICAgICAgICAgICAgICAgICAgICAgICJHZWFycyIgPSAiZ2VhciIpKSwNCiAgdGFibGVPdXRwdXQoImRhdGEiKQ0KKQ0KDQpzZXJ2ZXIgPC0gZnVuY3Rpb24oaW5wdXQsIG91dHB1dCwgc2Vzc2lvbikgew0KICBvdXRwdXQkZGF0YSA8LSByZW5kZXJUYWJsZSh7DQogICAgbXRjYXJzWywgYygibXBnIiwgaW5wdXQkdmFyaWFibGUpLCBkcm9wID0gRkFMU0VdDQogIH0sIHJvd25hbWVzID0gVFJVRSkNCn0NCg0Kc2hpbnlBcHAodWksIHNlcnZlcikNCg0KdWkgPC0gZmx1aWRQYWdlKA0KICBjaGVja2JveEdyb3VwSW5wdXQoImljb25zIiwgIkNob29zZSBpY29uczoiLA0KICAgIGNob2ljZU5hbWVzID0NCiAgICAgIGxpc3QoaWNvbigiY2FsZW5kYXIiKSwgaWNvbigiYmVkIiksDQogICAgICAgICAgIGljb24oImNvZyIpLCBpY29uKCJidWciKSksDQogICAgY2hvaWNlVmFsdWVzID0NCiAgICAgIGxpc3QoImNhbGVuZGFyIiwgImJlZCIsICJjb2ciLCAiYnVnIikNCiAgKSwNCiAgdGV4dE91dHB1dCgidHh0IikNCikNCg0Kc2VydmVyIDwtIGZ1bmN0aW9uKGlucHV0LCBvdXRwdXQsIHNlc3Npb24pIHsNCiAgb3V0cHV0JHR4dCA8LSByZW5kZXJUZXh0KHsNCiAgICBpY29ucyA8LSBwYXN0ZShpbnB1dCRpY29ucywgY29sbGFwc2UgPSAiLCAiKQ0KICAgIHBhc3RlKCJZb3UgY2hvc2UiLCBpY29ucykNCiAgfSkNCn0NCg0Kc2hpbnlBcHAodWksIHNlcnZlcikNCn0NCmBgYA0K</div>
 
 
 
