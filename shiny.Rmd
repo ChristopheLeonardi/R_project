@@ -4,62 +4,39 @@ output: html_notebook
 ---
 
 ```{r}
-#install.packages("shiny")
 library(shiny)
 library(DT)
-```
-
-```{r}
-ui <- fluidPage( 
-   titlePanel("Séléctionner un fichier CSV"),
-   sidebarLayout(
+ui <- fluidPage(
+  titlePanel("Séléctionner un fichier CSV"),
+  sidebarLayout(
     sidebarPanel(
-     fileInput('file1', 'Choose file to upload', 
-                accept = c( 
-                  'text/csv', 
-                  'text/comma-separated-values', 
-                  'text/tab-separated-values', 
-                  'text/plain', 
-                  '.csv', 
-                  '.tsv' 
-                ) 
-        ), 
-     tags$hr(), 
-    checkboxInput('header', 'Header', TRUE), 
-    radioButtons('sep', 'Separator', 
-                 c(Comma=',', 
-                   Semicolon=';', 
-                   Tab='\t'), 
-                 ','), 
+      fileInput("file", "Choose a CSV file",
+                accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
+      radioButtons('sep', 'Separator', c(Comma=',', Semicolon=';', Tab='\t'), ';'),
+      checkboxGroupInput("columns", "Select columns to keep:",
+                         choices = colnames(data())) 
+                         
     ),
-        mainPanel(
-      DT::dataTableOutput('contents') 
+    mainPanel(
+      tableOutput("data")
     )
-   )
-) 
+  )
+)
 
-```
-
-```{r}
- 
-server <- function(input, output,session) { 
- 
-    
-  output$contents <- DT::renderDataTable({ 
- 
-     
-    inFile <- input$file1 
-     
-    if (is.null(inFile)) 
-      return(NULL) 
-     
-    k<-read.csv(inFile$datapath, header = input$header, 
-             sep = input$sep) 
-     }) 
- 
-} 
-```
-
-```{r}
+server <- function(input, output,session) {
+  data <- reactive({
+    req(input$file)
+    df <- read.csv(input$file$datapath, header = TRUE, sep = input$sep)
+    updateCheckboxGroupInput(session, "columns", "Select columns to keep:", 
+                             choices = colnames(df),
+                             selected = colnames(df)
+                             )
+    df
+  })
+  
+  output$data <- renderTable({
+    data()[, input$columns]
+  }, server = TRUE)
+}
 shinyApp(ui = ui, server = server)
 ```
