@@ -1,0 +1,66 @@
+---
+title: "Traitement - ACP"
+output: html_document
+author: "Alex Keita N'diaye"
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+# Partie I - Chargement des données de test
+```{r}
+library(stats)
+library(readxl)
+library(dplyr)
+library(missMDA)
+library(pracma)
+library(corrplot)
+library(FactoMineR)
+```
+
+```{r}
+data <- read.csv("Data_acp.csv", sep = ";")
+data <- data[,2:12]
+```
+
+```{r}
+#Répartir les données du dataset en deux types
+#data_acp_qual
+data_acp_quant <- data
+```
+
+# Partie II - Analyse en composante principale (ACP)
+```{r}
+# Imputation des donnees
+data_imputed_acp <- imputePCA(data_acp_quant)
+
+#data_imputed_acp$completeObs : donnees imputées
+#data_imputed_acp$fittedX : donnees imputees et ajustees
+
+# Centrage et réduction des données
+data_fitted <- data_imputed_acp$fittedX
+
+# Calcul de la matrice de covariance
+cov_matrix <- cov(data_fitted)
+#corrplot(cov_matrix)
+
+# Appliquer l'ACP
+#res.pca <- PCA(c(data_fitted,data_acp_qual))#, graph = FALSE)
+res.pca <- PCA(data_fitted)
+
+# Afficher les valeurs propres et les proportions de variance expliquée
+res.pca$eig
+
+# Afficher les coordonnées des individus sur les composantes principales
+head(res.pca$var$coord)
+
+# Afficher les contributions des variables aux composantes principales
+head(res.pca$var$contrib)
+
+
+# Visualisation des deux autres plans 
+###ici faire un traitement pour déterminer les axes ayant les valeurs propres les plus significatives
+res.pca <- PCA(data_fitted, axes = c(1,3))
+res.pca <- PCA(data_fitted, axes = c(2,3))
+
+```
