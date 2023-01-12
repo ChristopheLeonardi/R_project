@@ -1,0 +1,99 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+#install.packages("shiny")
+library(shiny)
+```
+
+```{r}
+ui <- fluidPage(
+  titlePanel("Séléctionner un fichier CSV"),
+  sidebarLayout(
+    sidebarPanel(
+      fileInput("file", "Choose a CSV file",
+                accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
+      checkboxGroupInput("columns", "Select columns to keep:", 
+                         choices = colnames(data()))
+      
+        checkboxGroupInput("icons", "Choose icons:",
+    choiceNames =
+      list(icon("calendar"), icon("bed"),
+           icon("cog"), icon("bug")),
+    choiceValues =
+      list("calendar", "bed", "cog", "bug")
+  ),
+  textOutput("txt")
+      
+    ),
+    mainPanel(
+      tableOutput("data")
+    )
+  )
+)
+
+```
+
+```{r}
+
+server <- function(input, output,session) {
+  data <- reactive({
+    req(input$file)
+    df <- read.csv(input$file$datapath, header = TRUE)
+    updateCheckboxGroupInput(session, "columns", "Select columns to keep:", choices = colnames(df))
+    df
+  })
+  
+  output$data <- renderTable({
+    data()[, input$columns]
+  }, server = TRUE)
+}
+```
+
+```{r}
+shinyApp(ui = ui, server = server)
+```
+
+```{r}
+## Only run examples in interactive R sessions
+if (interactive()) {
+
+ui <- fluidPage(
+  checkboxGroupInput("variable", "Variables to show:",
+                     c("Cylinders" = "cyl",
+                       "Transmission" = "am",
+                       "Gears" = "gear")),
+  tableOutput("data")
+)
+
+server <- function(input, output, session) {
+  output$data <- renderTable({
+    mtcars[, c("mpg", input$variable), drop = FALSE]
+  }, rownames = TRUE)
+}
+
+shinyApp(ui, server)
+
+ui <- fluidPage(
+  checkboxGroupInput("icons", "Choose icons:",
+    choiceNames =
+      list(icon("calendar"), icon("bed"),
+           icon("cog"), icon("bug")),
+    choiceValues =
+      list("calendar", "bed", "cog", "bug")
+  ),
+  textOutput("txt")
+)
+
+server <- function(input, output, session) {
+  output$txt <- renderText({
+    icons <- paste(input$icons, collapse = ", ")
+    paste("You chose", icons)
+  })
+}
+
+shinyApp(ui, server)
+}
+```
