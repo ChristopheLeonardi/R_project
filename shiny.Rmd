@@ -79,6 +79,7 @@ ui <- fluidPage(
       
     ),
     mainPanel(
+      
       tableOutput("data"),
       
       plotOutput("acp_ind"),
@@ -199,6 +200,7 @@ server <- function(input, output,session) {
   })
 
   # Add Event Régression Longitudinale
+  # Un détail nous échappe dans le développement de cette partie où la prise en compte des données binaire ne passe pas.
   observeEvent(input$reg_lon, {
     
     # df_selected <- data()[, input$columns]
