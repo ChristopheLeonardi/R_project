@@ -15,6 +15,10 @@ library(lubridate)
 library(missForest)
 library(FactoMineR)
 library(wakefield)
+
+library(ggpubr)
+library(factoextra)
+library(cluster)
 ```
 
 ```{r}
@@ -72,7 +76,10 @@ ui <- fluidPage(
     ),
     mainPanel(
       tableOutput("data"),
-      plotOutput("acp"),
+      
+      plotOutput("acp_ind"),
+      plotOutput("acp_var"),
+      
       textOutput("lin"),
       textOutput("lon"),
       textOutput("k_means")
@@ -121,13 +128,27 @@ server <- function(input, output,session) {
   observeEvent(input$acp, {
     
     removeUI(selector = ".shiny-bound-output:not(#acp) *")
+
     df_selected <- data()[, input$columns]
     data_acp_num <- df_selected[sapply(df_selected, is.numeric)]
     data_imputed_acp <- missForest(data_acp_num)
     data_fitted <- data_imputed_acp$ximp
     
-    output$acp <- renderPlot({ 
-      res.pca <- PCA(data_fitted)
+    res.pca <- PCA(data_fitted, graph=T)
+    
+    output$acp_ind <- renderPlot({ 
+
+      info <- getCurrentOutputInfo()
+      plot.PCA(res.pca, choix="ind")
+
+      
+    })
+    
+    output$acp_var <- renderPlot({ 
+      
+      info <- getCurrentOutputInfo()
+      PCA(data_fitted)
+      
     })
 
     
@@ -149,6 +170,15 @@ server <- function(input, output,session) {
     
   # Add Event K-means
   observeEvent(input$k_means, {
+    data_acp_num <- data[sapply(data, is.numeric)]
+    data_acp_num <- scale(data_acp_num)
+
+    # Imputation des donnees
+    data_imputed_acp <- missForest(data_acp_num)
+    
+    # ACP des donnees imputees et ajustees
+    data_fitted <- data_imputed_acp$ximp
+    
     output$k_means <- renderPrint({ 
       "k_means"
     })
