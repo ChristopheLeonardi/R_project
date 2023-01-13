@@ -28,7 +28,7 @@ library(cluster)
 ### Test 1
 ```{r}
 # data <- read_excel("Data_kmeans.xlsx")
-# sample_size = 100
+# sample_size = 500
 # set.seed(1)
 # idxs = sample(1:nrow(data),sample_size,replace=F)
 # subsample = data[idxs,]
@@ -37,34 +37,32 @@ library(cluster)
 
 ### Test 2
 ```{r}
-# data <- read.csv("Data_kmeans3.csv", sep = ",")
-# sapply(data,class)
-```
-### Test 4
-```{r}
-# data("USArrests")
-# data <- data.frame(USArrests)
-# data2 <- data
-# data$xclass <- row.names(data)
-# sapply(data,class)
+sample_size = 51
+data("USArrests")
+data <- USArrests
+data$xclass <- row.names(data)
+rownames(data) <- NULL
 ```
 
 ### Test 3
 ```{r}
-set.seed(123)
-data <- data.frame(
-  x1 = rnorm(100),
-  x2 = rnorm(100),
-  x3 = rnorm(100),
-  x4 = r_sample_logical(100),
-  x5 = seq(as.Date("1999/01/01"), by = "day", length.out = 100),
-  x6 = seq(as.Date("2012/01/01"), by = "day", length.out = 100),
-  x7 = string(100),
-  xclass = sample(c("Banane","Mangue","Melon","Kiwi"), 100, replace = TRUE)
-)
-### Génération de 10% de données manquantes
-### data <- prodNA(data, noNA = 0.1)
-sapply(data,class)
+# set.seed(150)
+# sample_size = 50
+# data <- data.frame(
+#   x1 = rnorm(sample_size),
+#   x2 = rbinom(sample_size,20,0.42),
+#   x3 = rbinom(sample_size,20,0.42),
+#   x4 = rbinom(sample_size,20,0.42),
+#   x5 = rbinom(sample_size,20,0.42),
+#   x6 = rnorm(sample_size),
+#   x7 = r_sample_logical(sample_size),
+#   x8 = seq(as.Date("1999/01/01"), by = "day", length.out = sample_size),
+#   x9 = string(sample_size),
+#   xclass = sample(c("Banane","Mangue","Melon","Kiwi","Marron"), sample_size, replace = TRUE)
+# )
+# ### Génération de 10% de  manquantes
+# data <- prodNA(data, noNA = 0.1)
+# sapply(data,class)
 ```
 
 
@@ -77,47 +75,24 @@ data_acp_date <- data[sapply(data, is.Date)]
 data_acp_bool <- data[sapply(data, is.logical)]
 ```
 
-```{r}
-
-```
-
-
 # Partie II - Analyse K-means
 ```{r}
 ##La variable à expliquer doit être nommée xclass
 
-data_acp_num <- scale(data_acp_num)
-#data_acp <- c(,data_acp_char,data_acp_bool)
-
 # Imputation des donnees
 data_imputed_acp <- missForest(data_acp_num)
-
 # ACP des donnees imputees et ajustees
 data_fitted <- data_imputed_acp$ximp
 ```
 
-```{r}
-#Nombre optimal de clusters
-#fviz_nbclust(data_fitted, kmeans, method = "wss")
-
-# #Calcul du gap statistic basé sur le nombre de clusters
-# gap_stat <- clusGap(data_fitted,
-#                     FUN = kmeans,
-#                     nstart = 25,
-#                     K.max = 25,
-#                     B = 50)
-# 
-# #Nombre de clusters vs. gap statistic
-# fviz_gap_stat(gap_stat)
-```
 
 ```{r}
 # Calculer k-means avec k = 3
-set.seed(123)
-data_kmeans <- kmeans(data_fitted, 
-                          centers = 5, 
-                          iter.max = 6,
-                          nstart = 25)
+set.seed(1)
+data_kmeans <- kmeans(data_fitted,
+                          centers = 4,
+                          iter.max = 116,
+                          nstart = 250)
 
 # Clustering K-means montrant le groupe de chaque individu
 data_kmeans$cluster
@@ -126,36 +101,46 @@ data_kmeans$cluster
 ###Utiliser cor ou cov?
 corrplot(cor(data_fitted))
 
-# Application de l'ACP
+# Visualiser les clusters k-means
+fviz_cluster(data_kmeans, data = data_fitted,
+             geom = "point",
+             ellipse.type = "convex",
+             ggtheme = theme_bw()
+             )
+```
+
+
+```{r}
+# Application de l'ACP et K-means
 res.pca <- PCA(data_fitted)
 
-# Coordonnées des individus
-ind.coord <- as.data.frame(get_pca_ind(res.pca)$coord)
+# Calculer k-means avec k = 3
+set.seed(1)
+data_kmeans_pca <- kmeans(res.pca$ind$coord,
+                          centers = 4,
+                          iter.max = 116,
+                          nstart = 250)
 
-# Ajouter les clusters obtenus à l'aide de l'algorithme k-means
-ind.coord$cluster <- factor(data_kmeans$cluster)
+# Clustering K-means montrant le groupe de chaque individu
+data_kmeans_pca$cluster
 
-# Ajouter les groupes d'espèces issues du jeu de données initial
-ind.coord$xclass <- data$xclass
-
-# Inspection des données
-head(ind.coord)
-
-# Pourcentage de la variance expliquée par les dimensions
-eigenvalue <- data.frame(round(get_eigenvalue(res.pca), 1))
-variance.percent <- eigenvalue$variance.percent
-
+# Calcul de la matrice de covariance
+corrplot(cor(data_fitted))
 
 # Visualiser les clusters k-means
-###ici faire un traitement pour déterminer les axes ayant les valeurs propres les plus significatives
-###ces valeurs seront utilisées pour Dim 1/2
-ggscatter(
-  ind.coord, x = "Dim.1", y = "Dim.2", 
-  color = "cluster", palette = "npg", ellipse = TRUE, ellipse.type = "convex",
-  shape = "xclass", size = 1.5,  legend = "right", ggtheme = theme_bw(),
-  xlab = paste0("Dim 1 (", variance.percent[1], "% )" ),
-  ylab = paste0("Dim 2 (", variance.percent[2], "% )" )) +
-  stat_mean(aes(color = cluster), size = 4)
+
+#plot(res.pca$ind$coord[,1:2],col=factor(data_kmeans_pca$cluster))
+fviz_cluster(data_kmeans_pca, data = res.pca$ind$coord[,1:2],
+             geom = "point",
+             ellipse.type = "convex",
+             ggtheme = theme_bw()
+             )
+```
+
+
+
+```{r}
 
 
 ```
+
