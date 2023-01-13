@@ -4,7 +4,7 @@ output: html_notebook
 ---
 
 ```{r}
-source("Traitement/traitement_acp.R")
+
 library(stats)
 library(readxl)
 library(dplyr)
@@ -86,7 +86,7 @@ ui <- fluidPage(
       
       plotOutput("lin"),
       
-      tableOutput("lon"),
+      plotOutput("lon"),
       
       plotOutput("k_means")
       
@@ -118,7 +118,7 @@ server <- function(input, output,session) {
     df <- read.csv(input$file$datapath, header = TRUE, sep = input$sep)
         
     if(!is.null(input$file)) {
-      max_cluster <- nrow(df)
+      max_cluster <- nrow(df) - 1
       if(max_cluster > 10) { max_cluster = 10 }
       updateSliderInput(session, "n_cluster", max=max_cluster)
     }
@@ -172,6 +172,13 @@ server <- function(input, output,session) {
 
       
     })
+    
+    output$acp_var <- renderPlot({ 
+
+      plot.PCA(res.pca, choix="var")
+
+      
+    })
   })
     
   # Régression linéaire output
@@ -194,17 +201,18 @@ server <- function(input, output,session) {
   # Add Event Régression Longitudinale
   observeEvent(input$reg_lon, {
     
-    df_selected <- data()[, input$columns]
-    num_data <- num_data(df_selected)
+    # df_selected <- data()[, input$columns]
+    # num_data <- num_data(df_selected)
     
-    filtered_data <- num_data[c(input$var_inco_log, input$var_exp_log_1, input$var_exp_log_2)]
+    filtered_data <- data()[c(input$var_inco_log, input$var_exp_log_1, input$var_exp_log_2)]
+    filtered_data <- num_data(filtered_data)
     # Réaliser la régression logistique multiple
     
     fit <- glm(filtered_data[,1] ~ filtered_data[,2] + filtered_data[,3], data = filtered_data, family = "binomial")
     predictions <- predict(fit, data(), type = "response")
     results <- data.frame(observed = data()$var_inco_log, predicted = predictions)
     
-    output$lon <- renderTable({ 
+    output$lon <- renderPlot({ 
 
         ggplot(results, aes(x = predicted - observed)) +
             geom_histogram(bins = 20) +
@@ -217,25 +225,29 @@ server <- function(input, output,session) {
     
     removeUI(selector = ".shiny-bound-output:not(#k_means) *")
     
-    df_selected <- data()[, input$k_means]
+    df_selected <- data()[, input$var_quant]
     data_fitted <- num_data(df_selected)
-    
-    set.seed(123)
-    resultat_kmeans <- kmeans(data_fitted, 
-                              centers = input$n_cluster, 
-                              iter.max = 10, 
-                              nstart = 25)
+
+    res.pca <- PCA(data_fitted)
+
+    # Calculer k-means avec k = 3
+    set.seed(1)
+    data_kmeans_pca <- kmeans(res.pca$ind$coord,
+                              centers = input$n_cluster,
+                              iter.max = 116,
+                              nstart = 250)
+    # Clustering K-means montrant le groupe de chaque individu
+    data_kmeans_pca$cluster
     
     output$k_means <- renderPlot({ 
 
-      #info <- getCurrentOutputInfo()
-      #PCA(data_fitted)
-      fviz_cluster(resultat_kmeans, data = data_fitted,
-                   palette = colors[1:input$n_cluster], 
-                   geom = "point",
-                   ellipse.type = "convex", 
-                   ggtheme = theme_bw()
-                   )
+      info <- getCurrentOutputInfo()
+
+      fviz_cluster(data_kmeans_pca, data = res.pca$ind$coord[,1:2],
+             geom = "point",
+             ellipse.type = "convex",
+             ggtheme = theme_bw()
+             )
     })
   })
   
