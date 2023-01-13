@@ -48,7 +48,7 @@ ui <- fluidPage(
       # Regression Linéare
       wellPanel(
         titlePanel("Régression Linéaire"),
-        selectInput("var_inco_lin", "Variable à expliquer :", choices = c(colnames(data()))),
+        selectInput("var_inco_lin", "Variable à prédire :", choices = c(colnames(data()))),
         selectInput("var_exp_1", "Variable 1 explicative :", choices = c(colnames(data()))),
         selectInput("var_exp_2", "Variable 2 explicative :", choices = c(colnames(data()))),
 
@@ -58,10 +58,10 @@ ui <- fluidPage(
       # Regression logistique
       wellPanel(
         titlePanel("Régression Logistique"),
-        selectInput("var_inco_log", "Variable à expliquer :", choices = c(colnames(data()))),
-  
-        checkboxGroupInput("var_exp_lon", "Variable(s) explicative(s)",
-                           choices = colnames(data())), 
+        selectInput("var_inco_log", "Variable à prédire :", choices = c(colnames(data()))),
+        selectInput("var_exp_log_1", "Variable 1 explicative :", choices = c(colnames(data()))),
+        selectInput("var_exp_log_2", "Variable 2 explicative :", choices = c(colnames(data()))),
+        
         actionButton("reg_lon", "Voir la régression logistique"),
       ),
             
@@ -86,7 +86,7 @@ ui <- fluidPage(
       
       plotOutput("lin"),
       
-      plotOutput("lon"),
+      tableOutput("lon"),
       
       plotOutput("k_means")
       
@@ -128,7 +128,7 @@ server <- function(input, output,session) {
                              selected = colnames(df))
 
     # Régression Linéaire
-    updateSelectInput(session, "var_inco_lin", "Variable à expliqué :", 
+    updateSelectInput(session, "var_inco_lin", "Variable à prédire :", 
                              choices = colnames(df))
     updateSelectInput(session, "var_exp_1", "Variable 1 explicative :", 
                              choices = colnames(df))
@@ -136,12 +136,13 @@ server <- function(input, output,session) {
                              choices = colnames(df))
     
     # Régression Logistique
-    updateSelectInput(session, "var_inco_log", "Variable à expliquer :", 
+    updateSelectInput(session, "var_inco_log", "Variable à prédire :", 
                              choices = colnames(df))
     
-    updateCheckboxGroupInput(session, "var_exp_lon", "Variable(s) explicative(s)", 
-                             choices = colnames(df),
-                             selected = colnames(df))
+    updateSelectInput(session, "var_exp_log_1", "Variable 1 explicative :", 
+                             choices = colnames(df))
+    updateSelectInput(session, "var_exp_log_2", "Variable 2 explicative :", 
+                             choices = colnames(df))
     
     # K-means
 
@@ -192,8 +193,22 @@ server <- function(input, output,session) {
 
   # Add Event Régression Longitudinale
   observeEvent(input$reg_lon, {
-    output$lon <- renderText({ 
-      p('My first paragraph, with some ', strong('bold'), ' text.')
+    
+    df_selected <- data()[, input$columns]
+    num_data <- num_data(df_selected)
+    
+    filtered_data <- num_data[c(input$var_inco_log, input$var_exp_log_1, input$var_exp_log_2)]
+    # Réaliser la régression logistique multiple
+    
+    fit <- glm(filtered_data[,1] ~ filtered_data[,2] + filtered_data[,3], data = filtered_data, family = "binomial")
+    predictions <- predict(fit, data(), type = "response")
+    results <- data.frame(observed = data()$var_inco_log, predicted = predictions)
+    
+    output$lon <- renderTable({ 
+
+        ggplot(results, aes(x = predicted - observed)) +
+            geom_histogram(bins = 20) +
+            labs(x = "Erreur de prédiction", y = "Nombre d'observations")
     })
   })
     
