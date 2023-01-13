@@ -1,0 +1,99 @@
+---
+title: "Traitement - ACP"
+output: html_document
+author: "Alex Keita N'diaye"
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+# Partie I - Chargement des données de test
+```{r}
+library(stats)
+library(readxl)
+library(dplyr)
+library(missMDA)
+library(pracma)
+library(corrplot)
+library(lubridate)
+library(missForest)
+library(FactoMineR)
+library(wakefield)
+```
+
+### Test 1
+```{r}
+# data <- read.csv("Data_acp.csv", sep = ";")
+# sapply(data,class)
+```
+
+### Test 2
+```{r}
+# data <- read.csv("Data_acp2.csv", sep = ";")
+# sapply(data,class)
+```
+
+### Test 3
+```{r}
+set.seed(123)
+data <- data.frame(
+  x1 = rnorm(100),
+  x2 = rnorm(100),
+  x7 = rnorm(100),
+  x8 = r_sample_logical(100),
+  x3 = seq(as.Date("1999/01/01"), by = "day", length.out = 100),
+  x4 = seq(as.Date("2012/01/01"), by = "day", length.out = 100),
+  x5 = string(100),
+  x6 = string(100),
+  y = sample(c(0,1), 100, replace = TRUE),
+  y2 = sample(c(0,1), 100, replace = TRUE)
+)
+#Génération de 10% de données manquantes
+data <- prodNA(data, noNA = 0.1)
+sapply(data,class)
+```
+
+
+```{r}
+#Répartir les données du dataset en quatre types
+data_acp_char <- data[sapply(data, is.character)]
+data_acp_num <- data[sapply(data, is.numeric)]
+data_acp_date <- data[sapply(data, is.Date)]
+data_acp_bool <- data[sapply(data, is.logical)]
+```
+
+# Partie II - Analyse en composante principale (ACP)
+```{r}
+# Imputation des donnees
+data_imputed_acp <- missForest(data_acp_num)
+
+#data_imputed_acp$completeObs : donnees imputées
+#data_imputed_acp$fittedX : donnees imputees et ajustees
+
+# ACP des donnees imputees et ajustees
+data_fitted <- data_imputed_acp$ximp
+
+# Calcul de la matrice de covariance
+###Utiliser cor ou cov?
+corrplot(cor(data_fitted))
+
+# Appliquer l'ACP
+#res.pca <- PCA(c(data_fitted,data_acp_char))#, graph = FALSE)
+res.pca <- PCA(data_fitted)
+
+# Afficher les valeurs propres et les proportions de variance expliquée
+res.pca$eig
+
+# Afficher les coordonnées des individus sur les composantes principales
+head(res.pca$var$coord)
+
+# Afficher les contributions des variables aux composantes principales
+head(res.pca$var$contrib)
+
+
+# Visualisation des deux autres plans 
+###ici faire un traitement pour déterminer les axes ayant les valeurs propres les plus significatives
+res.pca <- PCA(data_fitted, axes = c(1,3))
+res.pca <- PCA(data_fitted, axes = c(2,3))
+
+```

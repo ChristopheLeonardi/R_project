@@ -4,12 +4,25 @@ output: html_notebook
 ---
 
 ```{r}
-install.packages("shinyalert")
+source("Traitement/traitement_acp.R")
+library(stats)
+library(readxl)
+library(dplyr)
+library(missMDA)
+library(pracma)
+library(corrplot)
+library(lubridate)
+library(missForest)
+library(FactoMineR)
+library(wakefield)
+
+library(ggpubr)
+library(factoextra)
+library(cluster)
 ```
 
 ```{r}
 library(shiny)
-library(DT)
 
 ui <- fluidPage(
   titlePanel("Projet Room 2"),
@@ -57,15 +70,19 @@ ui <- fluidPage(
   
         checkboxGroupInput("var_quant", "Variable(s) quantitative(s) : ",
                            choices = colnames(data())), 
-        actionButton("reg_lon", "Voir le K-means"),
+        actionButton("k_means", "Voir le K-means"),
       ),
       
     ),
     mainPanel(
       tableOutput("data"),
-      textOutput("selected_var")
-      #conditionalPanel('input.pType=="Default"',tableOutput("data")),
-      #conditionalPanel('input.pType=="ACP"', )
+      
+      plotOutput("acp_ind"),
+      plotOutput("acp_var"),
+      
+      textOutput("lin"),
+      textOutput("lon"),
+      textOutput("k_means")
       
     )
   )
@@ -107,13 +124,68 @@ server <- function(input, output,session) {
     df
   })
   
+  # Add event ACP
   observeEvent(input$acp, {
-    output$selected_var <- renderText({ 
-      "You have selected this"
+    
+    removeUI(selector = ".shiny-bound-output:not(#acp) *")
+
+    df_selected <- data()[, input$columns]
+    data_acp_num <- df_selected[sapply(df_selected, is.numeric)]
+    data_imputed_acp <- missForest(data_acp_num)
+    data_fitted <- data_imputed_acp$ximp
+    
+    res.pca <- PCA(data_fitted, graph=T)
+    
+    output$acp_ind <- renderPlot({ 
+
+      info <- getCurrentOutputInfo()
+      plot.PCA(res.pca, choix="ind")
+
+      
+    })
+    
+    output$acp_var <- renderPlot({ 
+      
+      info <- getCurrentOutputInfo()
+      PCA(data_fitted)
+      
+    })
+
+    
+  })
+    
+  # Add Event Régression linéaire
+  observeEvent(input$reg_lin, {
+    output$lin <- renderText({ 
+      "lin"
+    })
+  })
+
+  # Add Event Régression Longitudinale
+  observeEvent(input$reg_lon, {
+    output$lon <- renderText({ 
+      p('My first paragraph, with some ', strong('bold'), ' text.')
+    })
+  })
+    
+  # Add Event K-means
+  observeEvent(input$k_means, {
+    data_acp_num <- data[sapply(data, is.numeric)]
+    data_acp_num <- scale(data_acp_num)
+
+    # Imputation des donnees
+    data_imputed_acp <- missForest(data_acp_num)
+    
+    # ACP des donnees imputees et ajustees
+    data_fitted <- data_imputed_acp$ximp
+    
+    output$k_means <- renderPrint({ 
+      "k_means"
     })
   })
   
   output$data <- renderTable({
+    removeUI(selector = ".shiny-bound-output:not(#data) *")
     data()[, input$columns]
   }, server = TRUE)
 }
