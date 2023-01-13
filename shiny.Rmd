@@ -70,6 +70,9 @@ ui <- fluidPage(
   
         checkboxGroupInput("var_quant", "Variable(s) quantitative(s) : ",
                            choices = colnames(data())), 
+        selectInput("var_shape", "Variable de shape :", choices = c(colnames(data()))),
+        sliderInput("n_cluster", "Nombre de clusters:", min = 1, max = 10, value = 5),
+        
         actionButton("k_means", "Voir le K-means"),
       ),
       
@@ -82,7 +85,7 @@ ui <- fluidPage(
       
       textOutput("lin"),
       textOutput("lon"),
-      textOutput("k_means")
+      plotOutput("k_means")
       
     )
   )
@@ -170,17 +173,32 @@ server <- function(input, output,session) {
     
   # Add Event K-means
   observeEvent(input$k_means, {
-    data_acp_num <- data[sapply(data, is.numeric)]
+    
+    removeUI(selector = ".shiny-bound-output:not(#k_means) *")
+    
+    df_selected <- data()[, input$var_quant]
+    data_acp_num <- df_selected[sapply(df_selected, is.numeric)]
     data_acp_num <- scale(data_acp_num)
 
-    # Imputation des donnees
     data_imputed_acp <- missForest(data_acp_num)
-    
-    # ACP des donnees imputees et ajustees
     data_fitted <- data_imputed_acp$ximp
     
-    output$k_means <- renderPrint({ 
-      "k_means"
+    set.seed(123)
+    resultat_kmeans <- kmeans(data_fitted, 
+                              centers = 3, 
+                              iter.max = 10, 
+                              nstart = 25)
+    
+    output$k_means <- renderPlot({ 
+
+      #info <- getCurrentOutputInfo()
+      #PCA(data_fitted)
+      fviz_cluster(resultat_kmeans, data = data_fitted,
+                   palette = c("#2E9FDF", "#00AFBB", "#E7B800"), 
+                   geom = "point",
+                   ellipse.type = "convex", 
+                   ggtheme = theme_bw()
+                   )
     })
   })
   
