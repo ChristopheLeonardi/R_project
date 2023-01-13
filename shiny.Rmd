@@ -5,11 +5,20 @@ output: html_notebook
 
 ```{r}
 source("Traitement/traitement_acp.R")
+library(stats)
+library(readxl)
+library(dplyr)
+library(missMDA)
+library(pracma)
+library(corrplot)
+library(lubridate)
+library(missForest)
+library(FactoMineR)
+library(wakefield)
 ```
 
 ```{r}
 library(shiny)
-library(DT)
 
 ui <- fluidPage(
   titlePanel("Projet Room 2"),
@@ -63,7 +72,7 @@ ui <- fluidPage(
     ),
     mainPanel(
       tableOutput("data"),
-      textOutput("acp"),
+      plotOutput("acp"),
       textOutput("lin"),
       textOutput("lon"),
       textOutput("k_means")
@@ -110,10 +119,18 @@ server <- function(input, output,session) {
   
   # Add event ACP
   observeEvent(input$acp, {
+    
     removeUI(selector = ".shiny-bound-output:not(#acp) *")
-    output$acp <- renderText({ 
-      traitement_acp(data)
+    df_selected <- data()[, input$columns]
+    data_acp_num <- df_selected[sapply(df_selected, is.numeric)]
+    data_imputed_acp <- missForest(data_acp_num)
+    data_fitted <- data_imputed_acp$ximp
+    
+    output$acp <- renderPlot({ 
+      res.pca <- PCA(data_fitted)
     })
+
+    
   })
     
   # Add Event Régression linéaire
@@ -132,12 +149,13 @@ server <- function(input, output,session) {
     
   # Add Event K-means
   observeEvent(input$k_means, {
-    output$k_means <- renderText({ 
+    output$k_means <- renderPrint({ 
       "k_means"
     })
   })
   
   output$data <- renderTable({
+    removeUI(selector = ".shiny-bound-output:not(#data) *")
     data()[, input$columns]
   }, server = TRUE)
 }
