@@ -1,0 +1,57 @@
+---
+title: "Regression_Lineaire"
+author: "Room 1"
+date: "2023-01-13"
+output: html_document
+---
+
+## 
+
+```{r}
+# Charger les librairies nécessaires
+library(shiny)
+library(ggplot2)
+
+# Charger les données
+data <- read.csv("data.csv", sep = ";")
+
+# Sélectionner les variables explicatives et la variable à prédire
+x_vars <- c("Var_5", "Var_2", "Var_3", "Var_4", "Var_6", "Var_7", "Var_8")
+y_var <- c("Var_11", "Var_1", "Var_2", "Var_3", "Var_4")
+
+
+# Définir l'interface Shiny
+ui <- fluidPage(
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("x_var1", "Choisissez une 1ere variable explicative :", choices = x_vars),
+      selectInput("x_var2", "Choisissez une 2eme variable explicative :", choices = x_vars),
+      selectInput("y_var", "Choisissez la variable à prédire :", choices = y_var)
+    ),
+    mainPanel(
+      plotOutput("reg_plot")
+    )
+  )
+)
+
+# Définir le serveur Shiny
+server <- function(input, output) {
+  output$reg_plot <- renderPlot({
+    # Filtrer les données en fonction des choix de l'utilisateur
+    filtered_data <- data[c(input$x_var1, input$x_var2, input$y_var)]
+    
+    # Construire le modèle de régression multiple avec les données filtrées
+    model <- lm(filtered_data[,3] ~ filtered_data[,1] + filtered_data[,2])
+    # Afficher le graphique de la droite de régression
+    ggplot(filtered_data, aes_string(x=filtered_data[,1], y=filtered_data[,3], z= filtered_data[,2])) + 
+      geom_point() + 
+      geom_abline(intercept=model$coefficients[1], slope=model$coefficients[2], col="red") +
+      ggtitle(paste("Régression multiple entre", input$x_var1, ", " ,input$x_var2, "et", input$y_var))
+  })
+}
+
+# Lancer l'application Shiny
+shinyApp(ui = ui, server = server)
+
+
+```
