@@ -1,0 +1,65 @@
+---
+title: "Regression_Logique"
+author: "Room 1"
+date: "2023-01-13"
+output: html_document
+---
+
+```{r}
+library(shiny)
+
+# Charger les données
+df <- data.frame(
+  x1 = rnorm(100),
+  x2 = rnorm(100),
+  x3 = rnorm(100),
+  x4 = rnorm(100),
+  x5 = rnorm(100),
+  y = sample(c(0,1), 100, replace = TRUE)
+)
+
+
+# Créer l'application Shiny
+ui <- fluidPage(
+  # Ajouter des champs pour sélectionner les variables explicatives
+  selectInput("var1", "Choisissez une 1ere variable explicative :", colnames(df)),
+  selectInput("var2", "Choisissez une 2eme variable explicative :", colnames(df)),
+  selectInput("var3", "Choisissez la variable à prédire :", colnames(df)),
+  mainPanel(
+      # Ajouter un graphique pour afficher la droite de régression
+      plotOutput("regressionPlot")
+    )
+)
+
+```
+
+```{r}
+server <- function(input, output) {
+  
+  # Tracer la droite de régression
+  output$regressionPlot <- renderPlot({
+    
+  filtered_data <- df[c(input$var1, input$var2, input$var3)]
+  
+  # Réaliser la régression logistique multiple
+  model <- glm(filtered_data[,3] ~ filtered_data[,1] + filtered_data[,2] , family = binomial())
+  
+  
+  # Prédire les probabilités à partir du modèle
+    predictions <- predict(model, newdata = df, type = "response")
+    
+   # results <- data.frame(observed = filtered_data[,3], predicted = predictions)
+    #ggplot(results, aes(x = predicted - observed)) +
+    #geom_histogram(bins = 20) +
+    #labs(x = "Erreur de prédiction", y = "Nombre d'observations")
+    
+    plot(predictions, y)
+    abline(model)
+  })
+  
+}
+```
+
+```{r}
+shinyApp(ui, server)
+```

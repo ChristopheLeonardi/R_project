@@ -4,12 +4,26 @@ output: html_notebook
 ---
 
 ```{r}
-install.packages("shinyalert")
+source("Traitement/traitement_acp.R")
+library(stats)
+library(readxl)
+library(dplyr)
+library(missMDA)
+library(pracma)
+library(corrplot)
+library(lubridate)
+library(missForest)
+library(FactoMineR)
+library(wakefield)
+
+library(ggpubr)
+library(factoextra)
+library(cluster)
+library(ggplot2)
 ```
 
 ```{r}
 library(shiny)
-library(DT)
 
 ui <- fluidPage(
   titlePanel("Projet Room 2"),
@@ -35,9 +49,9 @@ ui <- fluidPage(
       wellPanel(
         titlePanel("Régression Linéaire"),
         selectInput("var_inco_lin", "Variable à expliquer :", choices = c(colnames(data()))),
-  
-        checkboxGroupInput("var_exp_lin", "Variable(s) explicatives",
-                           choices = colnames(data())), 
+        selectInput("var_exp_1", "Variable 1 explicative :", choices = c(colnames(data()))),
+        selectInput("var_exp_2", "Variable 2 explicative :", choices = c(colnames(data()))),
+
         actionButton("reg_lin", "Voir la régression linéaire multiple"),
       ),
             
@@ -57,15 +71,24 @@ ui <- fluidPage(
   
         checkboxGroupInput("var_quant", "Variable(s) quantitative(s) : ",
                            choices = colnames(data())), 
-        actionButton("reg_lon", "Voir le K-means"),
+        selectInput("var_shape", "Variable de shape :", choices = c(colnames(data()))),
+        sliderInput("n_cluster", "Nombre de clusters:", min = 1, max = 10, value = 5),
+        
+        actionButton("k_means", "Voir le K-means"),
       ),
       
     ),
     mainPanel(
       tableOutput("data"),
-      textOutput("selected_var")
-      #conditionalPanel('input.pType=="Default"',tableOutput("data")),
-      #conditionalPanel('input.pType=="ACP"', )
+      
+      plotOutput("acp_ind"),
+      plotOutput("acp_var"),
+      
+      plotOutput("lin"),
+      
+      plotOutput("lon"),
+      
+      plotOutput("k_means")
       
     )
   )
@@ -74,11 +97,31 @@ ui <- fluidPage(
 ```
 
 ```{r}
+# Fit Data
+num_data <- function (data) {
+    data_acp_num <- data[sapply(data, is.numeric)]
+    data_imputed_acp <- missForest(data_acp_num)
+    data_fitted <- data_imputed_acp$ximp
+    
+    return(data_fitted)
+}
+```
+
+```{r}
+colors <- c('#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#1a1a1a', '#000000')
+```
+
+```{r}
 server <- function(input, output,session) {
   data <- reactive({
     req(input$file)
     df <- read.csv(input$file$datapath, header = TRUE, sep = input$sep)
-    
+        
+    if(!is.null(input$file)) {
+      max_cluster <- nrow(df)
+      if(max_cluster > 10) { max_cluster = 10 }
+      updateSliderInput(session, "n_cluster", max=max_cluster)
+    }
     # ACP
     updateCheckboxGroupInput(session, "columns", "Sélectionnez les colonnes à conserver", 
                              choices = colnames(df),
@@ -87,10 +130,10 @@ server <- function(input, output,session) {
     # Régression Linéaire
     updateSelectInput(session, "var_inco_lin", "Variable à expliqué :", 
                              choices = colnames(df))
-    
-    updateCheckboxGroupInput(session, "var_exp_lin", "Variable(s) explicative(s)", 
-                             choices = colnames(df),
-                             selected = colnames(df))
+    updateSelectInput(session, "var_exp_1", "Variable 1 explicative :", 
+                             choices = colnames(df))
+    updateSelectInput(session, "var_exp_2", "Variable 2 explicative :", 
+                             choices = colnames(df))
     
     # Régression Logistique
     updateSelectInput(session, "var_inco_log", "Variable à expliquer :", 
@@ -101,19 +144,88 @@ server <- function(input, output,session) {
                              selected = colnames(df))
     
     # K-means
+
+    
+    updateSelectInput(session, "var_shape", "Variable de shape :", 
+                         choices = colnames(df))
     updateCheckboxGroupInput(session, "var_quant", "Variable(s) quantitative(s) : ", 
                              choices = colnames(df),
                              selected = colnames(df))
     df
   })
   
+  # Add event ACP
   observeEvent(input$acp, {
-    output$selected_var <- renderText({ 
-      "You have selected this"
+    
+    removeUI(selector = ".shiny-bound-output:not(#acp) *")
+    
+    df_selected <- data()[, input$columns]
+    data_fitted <- num_data(df_selected)
+    
+    res.pca <- PCA(data_fitted, graph=T)
+    
+    output$acp_ind <- renderPlot({ 
+
+      info <- getCurrentOutputInfo()
+      plot.PCA(res.pca, choix="ind")
+
+      
+    })
+  })
+    
+  # Régression linéaire output
+  observeEvent(input$reg_lin, {
+    
+    filtered_data <-  data()[c(input$var_inco_lin, input$var_exp_1, input$var_exp_2)]
+    
+    model <- lm(filtered_data[,1] ~ filtered_data[,2] + filtered_data[,3], data = filtered_data)
+    
+    output$lin <- renderPlot({ 
+      
+      ggplot(filtered_data, aes(x=filtered_data[,2], y=filtered_data[,1], z= filtered_data[,3])) + 
+      geom_point() + 
+      geom_abline(intercept=model$coefficients[1], slope=model$coefficients[2], col="red") +
+      ggtitle(paste("Régression multiple entre", input$var_inco_lin, ", " ,input$var_exp_1, "et", input$var_exp_2))
+      
+    })
+  })
+
+  # Add Event Régression Longitudinale
+  observeEvent(input$reg_lon, {
+    output$lon <- renderText({ 
+      p('My first paragraph, with some ', strong('bold'), ' text.')
+    })
+  })
+    
+  # Add Event K-means
+  observeEvent(input$k_means, {
+    
+    removeUI(selector = ".shiny-bound-output:not(#k_means) *")
+    
+    df_selected <- data()[, input$k_means]
+    data_fitted <- num_data(df_selected)
+    
+    set.seed(123)
+    resultat_kmeans <- kmeans(data_fitted, 
+                              centers = input$n_cluster, 
+                              iter.max = 10, 
+                              nstart = 25)
+    
+    output$k_means <- renderPlot({ 
+
+      #info <- getCurrentOutputInfo()
+      #PCA(data_fitted)
+      fviz_cluster(resultat_kmeans, data = data_fitted,
+                   palette = colors[1:input$n_cluster], 
+                   geom = "point",
+                   ellipse.type = "convex", 
+                   ggtheme = theme_bw()
+                   )
     })
   })
   
   output$data <- renderTable({
+    removeUI(selector = ".shiny-bound-output:not(#data) *")
     data()[, input$columns]
   }, server = TRUE)
 }
