@@ -4,7 +4,7 @@ output: html_notebook
 ---
 
 ```{r}
-install.packages("shinyalert")
+source("Traitement/traitement_acp.R")
 ```
 
 ```{r}
@@ -57,15 +57,16 @@ ui <- fluidPage(
   
         checkboxGroupInput("var_quant", "Variable(s) quantitative(s) : ",
                            choices = colnames(data())), 
-        actionButton("reg_lon", "Voir le K-means"),
+        actionButton("k_means", "Voir le K-means"),
       ),
       
     ),
     mainPanel(
       tableOutput("data"),
-      textOutput("selected_var")
-      #conditionalPanel('input.pType=="Default"',tableOutput("data")),
-      #conditionalPanel('input.pType=="ACP"', )
+      textOutput("acp"),
+      textOutput("lin"),
+      textOutput("lon"),
+      textOutput("k_means")
       
     )
   )
@@ -107,9 +108,32 @@ server <- function(input, output,session) {
     df
   })
   
+  # Add event ACP
   observeEvent(input$acp, {
-    output$selected_var <- renderText({ 
-      "You have selected this"
+    removeUI(selector = ".shiny-bound-output:not(#acp) *")
+    output$acp <- renderText({ 
+      traitement_acp(data)
+    })
+  })
+    
+  # Add Event Régression linéaire
+  observeEvent(input$reg_lin, {
+    output$lin <- renderText({ 
+      "lin"
+    })
+  })
+
+  # Add Event Régression Longitudinale
+  observeEvent(input$reg_lon, {
+    output$lon <- renderText({ 
+      p('My first paragraph, with some ', strong('bold'), ' text.')
+    })
+  })
+    
+  # Add Event K-means
+  observeEvent(input$k_means, {
+    output$k_means <- renderText({ 
+      "k_means"
     })
   })
   
